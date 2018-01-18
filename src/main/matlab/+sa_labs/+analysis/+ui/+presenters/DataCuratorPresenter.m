@@ -63,6 +63,7 @@ classdef DataCuratorPresenter < appbox.Presenter
             obj.addListener(v, 'BrowseLocation', @obj.onViewSelectedBrowseLocation);
             obj.addListener(v, 'LoadH5File', @obj.onViewLoadH5File);
             obj.addListener(v, 'ReParse', @obj.onViewReParse);
+            obj.addListener(v, 'Export', @obj.onViewExport);            
             obj.addListener(v, 'ShowFilteredEpochs', @obj.onViewShowFilteredEpochs);
             obj.addListener(v, 'SelectedNodes', @obj.onViewSelectedNodes).Recursive = true;
             obj.addListener(v, 'SelectedDevices', @obj.onViewSelectedDevices);
@@ -188,6 +189,45 @@ classdef DataCuratorPresenter < appbox.Presenter
             obj.offlineAnalysisManager.parseSymphonyFiles(pattern);
             obj.intializeCurator();
         end
+
+        function onViewExport(obj, ~, ~)
+            % This button allows to export selected epochs data into
+            % Epochs.mat LDS 2018-01-18
+            
+            plot = obj.view.getActivePlot();
+            [~, parameter] = sa_labs.analysis.ui.util.helpDocToStructure(plot);
+            yAxis = parameter.yAxis;
+            devices = obj.view.getSelectedDevices();
+
+            epochs = obj.getSelectedEpoch();
+            
+            if ~ isempty(epochs)
+                Epochs = struct;
+                EpochDataNum = 0;
+                for epochData = epochs
+                    n = numel(devices);
+
+                    EpochDataNum = EpochDataNum +1;
+                    for i = 1 : n
+                        device = devices{i};
+                        structure = epochData.getResponse(device);                        
+                        if ~ strcmpi(yAxis, 'filteredResponse')
+                            data = structure.quantity';
+                        else                        
+                            data = epochData.getDerivedResponse('filteredResponse', device);
+                        end
+                        if isempty(data)
+                            error('filteredResponse is an inmemory attribute. Run simpleSpikeDetector in mode ''Advanced'' to visualize')
+                        end
+                        Epochs(EpochDataNum).epoch = data;
+                    end
+                end
+                folder_name = uigetdir(pwd,'Select folder to export epochs');
+                file_name = [folder_name filesep 'Epochs.mat']; 
+                obj.log.info('Exporting Selected data to Epochs.mat');
+                save(file_name, 'Epochs');
+            end
+        end
         
         function populateEntityTree(obj, cellDataArray)
            
@@ -198,6 +238,7 @@ classdef DataCuratorPresenter < appbox.Presenter
             enabled = numel(cellData) > 0;
             obj.view.enableAvailablePlots(enabled);
             obj.view.enableReParse(enabled)
+            obj.view.enableExport(enabled)
             obj.view.enableAvailablePreProcessorFunctions(enabled);
             obj.view.disablePlotPannel(~ enabled);
         end

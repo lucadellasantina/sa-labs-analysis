@@ -4,6 +4,7 @@ classdef DataCuratorView < appbox.View
         BrowseLocation
         LoadH5File
         ReParse
+        Export
         ShowFilteredEpochs
         SelectedNodes
         SelectedDevices
@@ -39,6 +40,7 @@ classdef DataCuratorView < appbox.View
         browseLocationButton
         loadH5FileButton
         reparseButton
+        exportButton
         infoText
         showFilteredEpochsCheckBox
         entityTree
@@ -133,9 +135,15 @@ classdef DataCuratorView < appbox.View
                 'String', 'Re-Parse', ...
                 'Enable', 'off', ...
                 'Callback', @(h,d)notify(obj, 'ReParse'));
-
             uix.Empty('Parent', cellInfoLayout);
-            set(cellInfoLayout, 'Widths', [100 -1 100 10 100 10 100 -5]);
+            obj.exportButton = uicontrol( ...
+                'Parent', cellInfoLayout, ...
+                'Style', 'pushbutton', ...
+                'String', 'Export Selected Epochs', ...
+                'Enable', 'off', ...
+                'Callback', @(h,d)notify(obj, 'Export'));
+            uix.Empty('Parent', cellInfoLayout);
+            set(cellInfoLayout, 'Widths', [100 -1 100 10 100 10 100 10 150 -5]);
                        
             mainLayout = uix.HBox( ...
                 'Parent', layout, ...
@@ -415,6 +423,10 @@ classdef DataCuratorView < appbox.View
         function enableReParse(obj, tf)
             set(obj.reparseButton, 'Enable', appbox.onOff(tf));
         end
+        
+        function enableExport(obj, tf)
+            set(obj.exportButton, 'Enable', appbox.onOff(tf));
+        end        
         
         function enableShowFilteredEpochs(obj, tf)
             set(obj.showFilteredEpochsCheckBox, 'Enable', appbox.onOff(tf));
