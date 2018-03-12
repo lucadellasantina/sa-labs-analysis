@@ -199,8 +199,7 @@ classdef DataCuratorPresenter < appbox.Presenter
             yAxis = parameter.yAxis;
             devices = obj.view.getSelectedDevices();
 
-            epochs = obj.getSelectedEpoch();
-            
+            epochs = obj.getSelectedEpoch();            
             if ~ isempty(epochs)
                 Epochs = struct;
                 EpochDataNum = 0;
@@ -222,10 +221,12 @@ classdef DataCuratorPresenter < appbox.Presenter
                         Epochs(EpochDataNum).epoch = data;
                     end
                 end
-                folder_name = uigetdir(pwd,'Select folder to export epochs');
-                file_name = [folder_name filesep 'Epochs.mat']; 
-                obj.log.info('Exporting Selected data to Epochs.mat');
+                %folder_name = obj.fileRepository.rawDataFolder; % Use this to store in the raw data folder
+                folder_name = obj.fileRepository.analysisFolder; % Use this to store in the analysis folder
+                %folder_name = uigetdir(pwd,'Select folder to export epochs');% Use this to store in a custom folder
+                file_name = [folder_name filesep obj.view.getExperimentName() '_ExportedEpochs.mat']; 
                 save(file_name, 'Epochs');
+                obj.log.info(['Exported selected epochs to ' obj.view.getExperimentName() '_ExportedEpochs.mat']);                
             end
         end
         
