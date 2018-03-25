@@ -199,11 +199,22 @@ classdef DataCuratorPresenter < appbox.Presenter
             yAxis = parameter.yAxis;
             devices = obj.view.getSelectedDevices();
 
-            epochs = obj.getSelectedEpoch();            
+            %cellData = obj.getFilteredCellData();
+            %properties = cellData.getEpochKeysetUnion()
+            %cellData.epochs
+            %obj.view.setFilterProperty(properties);
+            %obj.view.enableFilters(numel(cellData) == 1);
+            %obj.view.update();
+            %for epoch = each(cellData.epochs)
+            %    obj.addEpochDataNode(epoch);
+            %end
+            
+            epochs = obj.getSelectedEpoch();
+                        
             if ~ isempty(epochs)
                 Epochs = struct;
                 EpochDataNum = 0;
-                for epochData = epochs
+                for epochData = epochs                    
                     n = numel(devices);
 
                     EpochDataNum = EpochDataNum +1;
@@ -218,7 +229,8 @@ classdef DataCuratorPresenter < appbox.Presenter
                         if isempty(data)
                             error('filteredResponse is an inmemory attribute. Run simpleSpikeDetector in mode ''Advanced'' to visualize')
                         end
-                        Epochs(EpochDataNum).epoch = data;
+                        Epochs(EpochDataNum).epoch = data; % store epoch data
+                        Epochs(EpochDataNum).metadata = epochData.toStructure; % store metadata
                     end
                 end
                 %folder_name = obj.fileRepository.rawDataFolder; % Use this to store in the raw data folder
